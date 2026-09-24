@@ -5,12 +5,15 @@
 
 ## 实验内容：
 ### 1、Anaconda的安装及配置
-已安装如图所示：
+已安装如图展示：
+
 <img width="681" height="196" alt="1" src="https://github.com/user-attachments/assets/c9bb7c7e-21c4-4727-855e-100a625c0927" />
 
 ### 2、conda的基本操作与OpenCV的安装
 1.  conda create -n [env_name] python==[version] 创建虚拟环境并制定python版本。
 2.  activate cv 进入创建的虚拟环境， pip install opencv-python 安装OpenCV。
+已安装如图展示：
+
 <img width="1143" height="234" alt="2" src="https://github.com/user-attachments/assets/647207b3-5dbe-469f-92ce-051b97e41df4" />
 
 ### 3、GPU加速环境配置

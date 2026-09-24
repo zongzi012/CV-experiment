@@ -1,9 +1,10 @@
 # 实验一：计算机视觉库的安装
+### 202410315012-张连艺
 
-## 实验目的：
+## 一、实验目的：
 掌握 Anaconda 的安装与基本操作，熟悉 GPU 使用环境的配置及对应版本 PyTorch 的安装，并完成 OpenCV 的安装与配置
 
-## 实验内容：
+## 二、实验内容：
 ### 1、Anaconda的安装及配置
 已安装如图展示：
 
@@ -26,14 +27,14 @@ nvidia-smi 显示显卡状态信息，如下：
 
 <img width="1024" height="321" alt="image" src="https://github.com/user-attachments/assets/6dc3494a-ab6e-44a7-a4a4-a253274e38ee" />
 
-2.  conda list pytorch 可以看到已经成功安装，信息如下：
+2. conda list pytorch 可以看到已经成功安装，信息如下：
 
 <img width="1154" height="266" alt="4" src="https://github.com/user-attachments/assets/77054461-31d2-4331-ba0c-4374ad0c9839" />
 
 ### 5、PyTorch GPU加速环境验证
 <img width="1832" height="453" alt="5" src="https://github.com/user-attachments/assets/014992aa-97e5-45fb-9281-22b82d6c4a66" />
 
-## 实验总结
+## 三、实验总结
 本次实验完成了 Anaconda、OpenCV 以及 PyTorch GPU 环境的部署与验证。通过 Anaconda 创建独立的`cv`虚拟环境，实现项目依赖隔离，避免不同库版本之间产生冲突；使用 pip 完成 OpenCV 安装，成功配置计算机视觉基础库。
 在 GPU 环境配置中，通过`nvidia-smi`查询显卡驱动信息，本机 RTX 5060 显卡驱动支持最高 CUDA 12.8 版本，安装了带 CUDA 126 编译版本的 PyTorch。虽然没有单独安装 CUDA Toolkit，无法使用`nvcc`命令，但 PyTorch 内置 CUDA 运行时。运行验证代码，`torch.cuda.is_available()`和`torch.backends.cudnn.is_available()`均输出`True`，证明 PyTorch 可以正常调用 GPU，GPU 加速环境可用。
 熟悉了 conda 虚拟环境管理、Python 视觉库安装以及 PyTorch GPU 环境排查的基本流程，理解了显卡驱动、CUDA 版本、PyTorch 版本三者之间的匹配关系，掌握了 GPU 可用性的验证方法，为后续计算机视觉模型训练与加速打下环境基础。

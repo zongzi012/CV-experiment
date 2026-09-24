@@ -18,9 +18,16 @@
 
 ### 3、GPU加速环境配置
 nvidia-smi 显示显卡状态信息，如下：
+
 <img width="1526" height="443" alt="3" src="https://github.com/user-attachments/assets/8a849476-c150-4b43-8f11-f456b8519451" />
 
 ### 4、PyTorch安装
+1. 结合CUDA版本至PyTorch官网选择对应版本进行下载，页面如下：
+
+<img width="1024" height="321" alt="image" src="https://github.com/user-attachments/assets/6dc3494a-ab6e-44a7-a4a4-a253274e38ee" />
+
+2.  conda list pytorch 可以看到已经成功安装，信息如下：
+
 <img width="1154" height="266" alt="4" src="https://github.com/user-attachments/assets/77054461-31d2-4331-ba0c-4374ad0c9839" />
 
 ### 5、PyTorch GPU加速环境验证

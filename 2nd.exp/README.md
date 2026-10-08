@@ -86,9 +86,38 @@ gauss_sp = cv2.GaussianBlur((sp_noise_img * 255).astype(np.uint8), (5, 5), 0)
 gauss_gus = cv2.GaussianBlur((gus_noise_img * 255).astype(np.uint8), (5, 5), 0)
 ```
 椒盐噪声的三种滤波对比图：
-
-
-
+<img width="1638" height="424" alt="image" src="https://github.com/user-attachments/assets/153e93a4-7ac3-420c-8863-c3e4bf7e1b4f" />
 
 高斯噪声的三种滤波对比图：
+<img width="1642" height="417" alt="屏幕截图 2026-10-08 142527" src="https://github.com/user-attachments/assets/75e9438f-463e-4fad-a21b-6419cfb789a4" />
 
+### 5.手动实现一个滤波方式
+```python
+def manual_median_filter_color(image, kernel_size=5):
+    pad = kernel_size // 2
+    filtered_img = np.zeros_like(image)
+    # 逐个通道处理
+    for c in range(3):
+        channel = image[:, :, c]
+        padded_channel = np.pad(channel, pad_width=pad, mode='edge')
+        h, w = channel.shape
+        for i in range(h):
+            for j in range(w):
+                region = padded_channel[i:i + kernel_size, j:j + kernel_size]
+                filtered_img[i, j, c] = np.median(region)
+    return filtered_img #中值滤波后的彩色图像
+
+# 椒盐噪声图转uint8输入手动滤波
+manual_mid = manual_median_filter_color((sp_noise_img * 255).astype(np.uint8), kernel_size=5)
+
+plt.figure(figsize=(8, 4))
+plt.subplot(1, 2, 1)
+plt.imshow(sp_noise_img)
+plt.title("s&p noise img")
+
+plt.subplot(1, 2, 2)
+plt.imshow(manual_mid)
+plt.title("manual median filter")
+```
+⼿动构建中值滤波效果图：
+<img width="1040" height="451" alt="image" src="https://github.com/user-attachments/assets/3bdc8786-9260-444d-ad58-97c4b1cdaea4" />

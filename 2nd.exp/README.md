@@ -38,7 +38,8 @@ OpenCV `cv2.imread()` 读取图片默认是 **BGR 通道顺序**，但 matplotli
 
 <img width="847" height="657" alt="image" src="https://github.com/user-attachments/assets/d78fe035-cee5-414e-9c35-ddb9c9584738" />
 
-将原始图像BGR格式转换成RGB格式，蓝色和红色互换
+
+将原始图像BGR格式转换成RGB格式，蓝色和红色互换：
 ```python
 rgb_img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
 plt.imshow(rgb_img)
@@ -48,7 +49,8 @@ plt.show()
 ```
 <img width="848" height="647" alt="image" src="https://github.com/user-attachments/assets/162c0671-d294-4165-a3da-cd3deea093d3" />
 
-转灰度图
+
+转灰度图：
 ```python
 # BGR转灰度图
 gray_img = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
@@ -91,6 +93,7 @@ gauss_gus = cv2.GaussianBlur((gus_noise_img * 255).astype(np.uint8), (5, 5), 0)
 高斯噪声的三种滤波对比图：
 <img width="1642" height="417" alt="屏幕截图 2026-10-08 142527" src="https://github.com/user-attachments/assets/75e9438f-463e-4fad-a21b-6419cfb789a4" />
 
+
 **三种滤波区别分析**
 1. 均值滤波 cv2.blur
 对滤波窗口内所有像素取算术平均值替换中心像素。属于线性滤波。
@@ -103,8 +106,8 @@ gauss_gus = cv2.GaussianBlur((gus_noise_img * 255).astype(np.uint8), (5, 5), 0)
 窗口内像素按照高斯分布做加权平均，中心像素权重最高，越远离中心权重越低，线性滤波。
 擅长处理高斯噪声，平滑效果柔和，相比均值滤波边缘保留效果更好。但本质仍是加权平均，无法有效去除椒盐噪声的孤立黑白噪点。
 
-> 
 > 适配规律：椒盐噪声优先使用中值滤波；高斯噪声适合高斯滤波或者均值滤波。
+
 ### 5.手动实现一个滤波方式
 ```python
 def manual_median_filter_color(image, kernel_size=5):

@@ -147,7 +147,8 @@ cv2.imwrite("stitched_result.jpg", stitched_img)
 <img width="2115" height="1588" alt="stitched_result" src="https://github.com/user-attachments/assets/5db77df7-2405-47a1-9000-fe859eb1642f" />
 
 ## 三、实验结果与分析
-###1.实验结果
+### 1.实验结果
+
 本次实验输入两张存在重叠区域的图像，输出统计：
 - 初始匹配点对数：2728
 - 筛选后优质匹配点对数：863

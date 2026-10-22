@@ -8,16 +8,39 @@
 ### 1.导入必要库
 - cv2:OpenCV库 <br>
 - numpy:Numpy库 <br>
-- matplotlib.pyplot:可视化库 <br>
-- os:操作系统交互的核心库 <br>
 ```python
 import cv2
 import numpy as np
-import matplotlib.pyplot as plt
-import os
 ```
 ### 2.读取图像并预处理
+初始化SIFT检测器并提取特征
+```python
+sift = cv2.SIFT_create()
+kp_a,des_a = sift.detectAndCompute(gray_a,None)
+kp_b,des_b = sift.detectAndCompute(gray_b,None)
+```
 这里先读取两张图像作为拼接的原素材， 再将图像转换为灰度图
+```python
+# 使用FLANN匹配器进行特征匹配
+FLANN_INDEX_KDTREE = 1
+index_params = dict(algorithm=FLANN_INDEX_KDTREE, trees=5)
+search_params = dict(checks=50)  # 检查次数越多，匹配越准确但速度越慢
+flann = cv2.FlannBasedMatcher(index_params, search_params)
+matches = flann.knnMatch(des_a, des_b, k=2)  # k=2表示每个特征点返回2个最佳匹配
+
+# 应用Lowe's比率测试筛选优质匹配点
+good_matches = []
+for m, n in matches:
+    if m.distance < 0.7 * n.distance:  # 比率阈值通常取0.7-0.8
+        good_matches.append(m)
+
+# 输出匹配统计信息
+print("=== 特征匹配统计 ===")
+print(f"初始匹配点对数: {len(matches)}")
+print(f"筛选后优质匹配点对数: {len(good_matches)}")
+print(f"过滤掉的匹配点对数: {len(matches) - len(good_matches)}")
+print(f"优质匹配点比例: {len(good_matches)/len(matches):.2%}")
+```
 
 ### 3.关键点检测
 先使用FLANN算法快速找到两幅图像特征点之间的对应关系，然后再过滤掉不可靠的匹配点，只保留高质量的匹配，最后得到高质量的关键点

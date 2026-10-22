@@ -2,7 +2,9 @@
 ### 202410315012_张连艺
 
 ## 一、实验目的
-图像关键点检测及图像拼接实验报告，基于SIFT特征检测算法和FLANN特征匹配方法，实现两幅图像的特征点提取、匹配和自动拼接，掌握图像配准和融合的基本原理与实现方法。
+1.理解 SIFT 尺度不变特征变换算法原理，掌握图像关键点、特征描述子的提取方法。
+2.掌握 FLANN 匹配器、K 近邻匹配以及 Lowe 比率测试筛选匹配点的流程
+3.掌握透视变换、图像平移拼接方法，实现两张有重叠区域图像的全景拼接。
 
 ## 二、实验内容
 ### 1.导入必要库
@@ -12,14 +14,35 @@
 import cv2
 import numpy as np
 ```
+
 ### 2.读取图像并预处理
-初始化SIFT检测器并提取特征
+这里先读取两张图像作为拼接的原素材， 再将图像转换为灰度图
+```python
+# 读取图像
+img_a = cv2.imread("a.jpg")
+img_b = cv2.imread("b.jpg")
+# 将图像转换为灰度图
+gray_a = cv2.cvtColor(img_a, cv2.COLOR_BGR2GRAY)
+gray_b = cv2.cvtColor(img_b, cv2.COLOR_BGR2GRAY)
+
+cv2.imwrite("gray_a.jpg", gray_a)
+cv2.imwrite("gray_b.jpg", gray_b)
+```
+结果图：
+
+<img width="403" height="533" alt="image" src="https://github.com/user-attachments/assets/f6d363e4-3086-497a-acf1-1dd8ad9385c9" />
+<img width="438" height="530" alt="image" src="https://github.com/user-attachments/assets/9109be35-0d71-4100-b2f7-3dd2c33a1352" />
+
+### 3.关键点检测
+SIFT 可以提取图像上具有尺度不变、旋转不变特性的关键点，并生成 128 维特征描述子，描述关键点邻域梯度信息，用于不同图像之间特征比对。
+即使图像存在缩放、旋转、亮度变化，依然可以稳定找到同名特征点。
+初始化SIFT检测器并提取特征：
 ```python
 sift = cv2.SIFT_create()
 kp_a,des_a = sift.detectAndCompute(gray_a,None)
 kp_b,des_b = sift.detectAndCompute(gray_b,None)
 ```
-这里先读取两张图像作为拼接的原素材， 再将图像转换为灰度图
+使用FLANN算法快速找到两幅图像特征点之间的对应关系，然后再过滤掉不可靠的匹配点，只保留高质量的匹配，最后得到高质量的关键点
 ```python
 # 使用FLANN匹配器进行特征匹配
 FLANN_INDEX_KDTREE = 1
@@ -41,9 +64,26 @@ print(f"筛选后优质匹配点对数: {len(good_matches)}")
 print(f"过滤掉的匹配点对数: {len(matches) - len(good_matches)}")
 print(f"优质匹配点比例: {len(good_matches)/len(matches):.2%}")
 ```
+输出结果：
+```python
+=== 特征匹配统计 ===
+初始匹配点对数: 2728
+筛选后优质匹配点对数: 863
+过滤掉的匹配点对数: 1865
+优质匹配点比例: 31.63%
+```
+绘制匹配的SIFT关键点：
+```python
+matched_keypoints_img = cv2.drawMatches(
+    img_a, kp_a, img_b, kp_b, good_matches,
+    None, flags=cv2.DrawMatchesFlags_NOT_DRAW_SINGLE_POINTS
+)
+```
+结果如下：
 
-### 3.关键点检测
-先使用FLANN算法快速找到两幅图像特征点之间的对应关系，然后再过滤掉不可靠的匹配点，只保留高质量的匹配，最后得到高质量的关键点
+<img width="2559" height="1588" alt="matched_keypoints" src="https://github.com/user-attachments/assets/712a6114-938c-4373-8c21-ab9fa97e7e3c" />
+
+
 
 ### 4.图像拼接
 #### 图像拼接的几何变换核心流程

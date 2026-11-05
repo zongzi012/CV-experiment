@@ -1,10 +1,6 @@
 # 实验四：MLP-多层感知机
 ### 202410315012_张连艺
 
-> **文件说明**  
-> 本实验的原本代码在`4th.ipynb`文件中<br>
-> 本实验的图标分析结果在`res`文件夹中<br>
-
 ## 一、实验目的
 1. 掌握 PyTorch 基础框架使用，理解数据集加载、数据变换、数据加载器DataLoader工作流程。
 2. 理解多层感知机（MLP）神经网络结构原理，掌握全连接层、激活函数、损失函数、优化器的使用。
@@ -113,16 +109,17 @@ mlp(
 ```
 
 ### 4.模型迭代训练和测试评估循环
-- `epochs = 10`: 定义迭代次数10次
-- `for epoch in range(epochs):`: 让模型迭代10次训练集
-- `model.train()`: 开始训练
-- `for batch_idx, (x, y) in enumerate(train_loader):`：每次迭代训练集多大，分批次循环训练
-- `x, y = x.view(x.shape[0], -1).to(device), y.to(device)`: 数据预处理，将图像像素信息平铺成一个向量然后输入给GPU
-- `optimizer.zero_grad()`: 每次训练前将梯度清零，防止梯度在不同批次间累积
-- `output = model(x)`：前向传播，得到初步多分类
-- `loss = F.cross_entropy(output, y)`：用自带softmax的交叉熵损失去计算此批次的损失值
-- `loss.backward()`：用计算出的损失值去做反向传播学习
-- `optimizer.step()`：最后通过`4.创建MLP模型`中设置的优化器去做参数的更新，并开始循环迭代批次，直到训练结束为止
+训练阶段：
+- `epochs = 10`: 定义整体迭代轮数，完整遍历训练集 10 次
+- `for epoch in range(epochs):`: 外层循环，控制数据集整体迭代次数，重复训练数据集 10 轮
+- `model.train()`: 将模型切换为**训练模式**，启用与训练相关层的特性
+- `for batch_idx, (x, y) in enumerate(train_loader):`：内层批次循环，按 batch 分批读取训练集数据，`batch_idx`为批次编号，`x`为图像张量，`y`为对应标签
+- `x, y = x.view(x.shape[0], -1).to(device), y.to(device)`: 数据预处理，把二维图像展平为一维特征向量，同时将图像、标签张量迁移至 CPU/GPU 同一设备
+- `optimizer.zero_grad()`: 每个批次训练前清零梯度，避免不同批次梯度累积造成参数更新错误
+- `output = model(x)`：前向传播，将特征送入网络，输出各个类别的预测得分
+- `loss = F.cross_entropy(output, y)`：使用内置 softmax 的交叉熵损失函数，计算该批次预测结果与真实标签之间的损失
+- `loss.backward()`：反向传播，根据损失自动求解网络各参数的梯度
+- `optimizer.step()`：优化器依据梯度更新网络权重参数，完成单批次训练，继续循环下一个批次，直到本 epoch 所有批次遍历完毕
 
 ```python
 epochs = 30
@@ -138,6 +135,23 @@ for epoch in range(epochs):
         loss.backward()             # 反向传播求梯度
         optimizer.step()            # 更新参数
 
+```
+
+测试评估阶段:
+- `model.eval()`: 将模型切换为**评估模式**，关闭训练专属逻辑，保证测试推理环境
+- `correct = 0`、`test_loss = 0`: 初始化变量，分别用于统计预测正确样本总数、累计测试集损失
+- `with torch.no_grad():`：关闭梯度计算，测试阶段不需要反向传播，节约内存、提升推理速度
+- `for batch_idx, (x, y) in enumerate(test_loader):`：分批次读取测试集数据，对全部测试样本做推理
+- `x, y = x.view(x.shape[0], -1).to(device), y.to(device)`：测试集图像同样展平为一维向量，并迁移到对应运算设备
+- `output = model(x)`：前向传播，得到测试样本的分类预测得分
+- `test_loss += F.cross_entropy(output, y)`：累加每一批次的损失，统计整体测试损失
+- `pred = output.max(1, keepdim=True)[1]`：取得分最大下标作为样本的预测类别
+- `correct += pred.eq(y.view_as(pred)).sum().item()`：对比预测值和真实标签，统计预测正确样本数量
+- `test_loss = test_loss / (batch_idx+1)`：求平均测试损失
+- `acc = correct / len(test_loader.dataset)`：计算测试集整体分类准确率
+- `print(f'epoch:{epoch:2d}, loss:{test_loss:.4f}, acc:{acc:.4f}')`：打印本轮 epoch 的测试损失与准确率，完成一轮训练‑评估流程，进入下一轮 epoch 循环。
+  
+```python
     # ==========测试评估阶段==========
     model.eval()
     correct = 0
@@ -156,6 +170,7 @@ for epoch in range(epochs):
 ```
 
 ```python
+输出结果：
 epoch: 0, loss:0.5934, acc:0.8624
 epoch: 1, loss:0.5805, acc:0.8639
 epoch: 2, loss:0.5696, acc:0.8662
@@ -200,3 +215,10 @@ epoch:29, loss:0.4140, acc:0.8922
 模型最终准确率没有达到 90% 以上，原因：
 1. 网络结构简单，仅两层全连接，特征提取能力有限，没有卷积层提取局部空间特征。
 2. 超参数限制：学习率 0.01、迭代 30 轮、batch_size=2048，可以调整学习率、增加隐层神经元、增加训练轮数进一步提升准确率。
+
+## 四、实验总结与心得
+本次实验完成基于 PyTorch 的 MLP 多层感知机对 MNIST 手写数字的分类任务。掌握了数据集下载加载、`DataLoader`批量读取、网络模型定义、训练‑测试循环完整流程。
+
+MNIST 原始 28×28 灰度图像，需要展平为 784 维向量送入全连接网络；ReLU 激活函数为网络引入非线性；SGD 优化器配合交叉熵损失完成权重更新。训练阶段开启`model.train()`，测试阶段切换`model.eval()`，使用`no_grad()`关闭梯度计算。
+
+两层 MLP 可以完成手写数字识别任务，随着训练轮数增加损失降低、准确率上升。但单纯全连接网络对图像空间特征提取能力有限，识别效果还有提升空间，后续可以引入卷积神经网络 CNN 进一步提高手写数字识别准确率。

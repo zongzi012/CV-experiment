@@ -246,6 +246,7 @@ plt.show()
 运行结果：
 
 原始输入图像：
+
 <img width="550" height="125" alt="image" src="https://github.com/user-attachments/assets/94b6f3d1-9a1b-4317-b594-28ff22fe1ebf" />
 
 conv1 第一层卷积输出特征图：

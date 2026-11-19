@@ -250,9 +250,11 @@ plt.show()
 <img width="550" height="125" alt="image" src="https://github.com/user-attachments/assets/94b6f3d1-9a1b-4317-b594-28ff22fe1ebf" />
 
 conv1 第一层卷积输出特征图：
+
 <img width="544" height="122" alt="image" src="https://github.com/user-attachments/assets/e1fc1996-58af-4fdf-b0a1-0c327b49fd69" />
 
 conv2 第二层卷积输出特征图：
+
 <img width="551" height="124" alt="image" src="https://github.com/user-attachments/assets/ed8e992e-5ae0-4f44-ab97-59e0d0c3e775" />
 
 

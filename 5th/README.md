@@ -20,8 +20,8 @@ import matplotlib.pyplot as plt
 ```
 
 ### 2.设置设备和参数
-- `batch_size = 512`:设置批量大小参数，每次训练时同时处理512个样本
-- `device = torch.device("cpu")`:选择CPU计算
+1. `batch_size = 512`:设置批量大小参数，每次训练时同时处理512个样本
+2. `device = torch.device("cpu")`:选择CPU计算
 
 ```python
 batch_size = 512
@@ -29,9 +29,9 @@ device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 ```
 
 ### 3.加载MNIST数据集
-- 训练数据加载器 `train_loader`:加载 MNIST手写数字数据集训练集
-- 测试数据加载器 `test_loader`:加载 MNIST手写数字数据集测试集
-- 数据预处理`transform`:将图像转换为张量
+1. 训练数据加载器 `train_loader`:加载 MNIST手写数字数据集训练集
+2. 测试数据加载器 `test_loader`:加载 MNIST手写数字数据集测试集
+3. 数据预处理`transform`:将图像转换为张量
 
 ```python
 trainloader = torch.utils.data.DataLoader(datasets.MNIST('data', train=True, download=True,
@@ -50,7 +50,15 @@ print("测试数据形式:", testloader.dataset.data.shape)
 ```
 
 ### 4.创建模型
-
+1. `class Net(nn.Module)`：所有 pytorch 网络都要继承`nn.Module`
+2. `Conv2d`卷积层：
+   `conv1`：输入是单通道灰度图，输出 6 个特征图，padding=2 让卷积后图像大小不变。
+   `conv2`：6 通道输入，输出 16 个特征图。
+3. `nn.Linear`全连接层：把卷积提取的特征映射成向量。
+4. `forward()`：数据从输入到输出的计算流程，**不要在 init 里面写激活、池化**。
+   `F.sigmoid()`激活函数；`F.avg_pool2d`平均池化，降低图像尺寸，减少参数量。
+   `torch.flatten(x,1)`：把除 batch 之外的维度全部摊平，给全连接层使用。
+5. `model.to(device)`把网络移到 GPU/CPU；`Adam`优化器，学习率 0.01；epochs=30 训练轮数。
 
 ```python
 class Net(nn.Module):
@@ -110,11 +118,13 @@ Net(
 ```
 
 ### 5.训练与测试
-
-**1. 训练阶段**
-
-**2. 测试阶段**
-
+1. 外层循环`epoch`，一轮代表完整跑一遍全部训练集。
+2. 内层遍历训练集每个 batch：
+   - `x,y = x.to(device),y.to(device)`数据迁移到 GPU/CPU；
+   - `optimizer.zero_grad()`每批次必须清空历史梯度，防止梯度累积；
+   - `loss.backward()`反向传播计算参数梯度；`optimizer.step()`更新网络权重。
+3. `with torch.no_grad()`测试阶段关闭梯度计算，节省显存，不更新参数。
+4. `out.max(dim=1)[1]`拿到预测的数字标签；统计预测正确样本，计算测试集准确率。
 
 ```python
 # 训练
@@ -129,7 +139,7 @@ for epoch in range(epochs):
         loss = F.cross_entropy(out, y)
         loss.backward()
         optimizer.step()
-# 测试
+# 测试循环
     correct = 0
     testloss = 0
     with torch.no_grad():
@@ -201,12 +211,16 @@ plt.grid()
 
 plt.show()
 ```
+运行结果：
+
 <img width="541" height="250" alt="image" src="https://github.com/user-attachments/assets/c9c6ddf4-baef-4548-a5b5-396718ae9a7d" />
 
   
 ### 6.可视化每层卷积的效果
-
-为了进一步理解卷积神经网络的内部工作机制，对LeNet模型的中间层的特征图进行了可视化，包括第一层卷积、第一层池化、第二层卷积以及第二层池化。
+1. 跳过池化层，直接取出卷积层经过 sigmoid 后的输出特征图。
+2. `.detach().cpu().numpy()`：把张量从 GPU 拿回到 CPU，转为 numpy 数组，用于绘图。
+3. `n=5`选择 5 张样本；`sum(0)`对通道维度求和，把多通道特征图合并成单张灰度图方便观察。
+4. 绘图分为三行：原始图片、第一层卷积特征、第二层卷积特征，直观看到卷积网络提取出来的图像纹理轮廓。
 
 ```
 feature1 = F.sigmoid(model.conv1(x))
@@ -231,10 +245,13 @@ plt.show()
 ```
 运行结果：
 
+原始输入图像：
 <img width="550" height="125" alt="image" src="https://github.com/user-attachments/assets/94b6f3d1-9a1b-4317-b594-28ff22fe1ebf" />
 
+conv1 第一层卷积输出特征图：
 <img width="544" height="122" alt="image" src="https://github.com/user-attachments/assets/e1fc1996-58af-4fdf-b0a1-0c327b49fd69" />
 
+conv2 第二层卷积输出特征图：
 <img width="551" height="124" alt="image" src="https://github.com/user-attachments/assets/ed8e992e-5ae0-4f44-ab97-59e0d0c3e775" />
 
 
